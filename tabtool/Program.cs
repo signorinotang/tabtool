@@ -13,7 +13,7 @@ namespace tabtool
     {
         static void Main(string[] args) {
 
-            //args = new string[] { "--out_client", "../../../csharptest/tabtool/config/", "--out_server", "../../../cpptest/tabtool/config/", "--out_cpp", "../../../cpptest/tabtool/", "--out_cs", "../../../csharptest/tabtool/", "--in_excel", "../../../test/", "--in_tbs", "../../../test/meta.tbs" };
+            args = new string[] { "--out_client", "../../../csharptest/tabtool/config/", "--out_server", "../../../cpptest/tabtool/config/", "--out_cpp", "../../../cpptest/tabtool/", "--out_cs", "../../../csharptest/tabtool/", "--in_excel", "../../../test/doc/", "--in_tbs", "../../../test/doc/meta.tbs" };
 
             string clientOutDir, serverOutDir, cppOutDir, csOutDir, excelDir, metafile;
             CmdlineHelper cmder = new CmdlineHelper(args);

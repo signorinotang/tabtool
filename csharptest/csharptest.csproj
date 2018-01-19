@@ -52,8 +52,10 @@
     <Compile Include="tabtool\TableManager.cs" />
     <Compile Include="tabtool\TableStruct.cs" />
     <Compile Include="tabtool\table_load.cs" />
+    <Compile Include="tabtool\td_chapter.cs" />
     <Compile Include="tabtool\td_color.cs" />
     <Compile Include="tabtool\td_head.cs" />
+    <Compile Include="tabtool\td_maps.cs" />
     <Compile Include="tabtool\td_test.cs" />
   </ItemGroup>
   <ItemGroup>

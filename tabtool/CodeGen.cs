@@ -303,9 +303,19 @@ namespace tabtool {
             }
 
         }
+        public static void MakeCsharpRegroupFile(TableMeta meta, string codepath) {
+            foreach (var field in meta.Fields) {
+                string relate_info = field.Get("regroup");
+                if(relate_info != null) {
+                   
+
+                }
+            }
+        }
         public static void MakeCsharpFile(List<TableMeta> metalist, string codepath)
         {
             foreach (var meta in metalist) {
+                MakeCsharpRegroupFile(meta, codepath);
                 string csfile = codepath + meta.GetClassName() + ".cs";
                 using (FileStream fs = new FileStream(csfile, FileMode.Create, FileAccess.Write)) {
                     using (StreamWriter sw = new StreamWriter(fs, Encoding.UTF8)) {
@@ -323,7 +333,7 @@ namespace tabtool {
                         }
                         foreach (var field in meta.Fields) {
                             string relate_info = field.Get("relate");
-                            if (relate_info != null) {
+                            if (relate_info != null && field.Get("regroup") == null) {
                                 string[] s = relate_info.Split('.');
                                 if (s.Count() != 2) {
                                     throw new Exception(meta.TableName + " relate error!!! field name " + field.fieldName);
@@ -408,7 +418,7 @@ namespace tabtool {
                         if (meta.relate) {
                             foreach (var field in meta.Fields) {
                                 string relate_info = field.Get("relate");
-                                if (relate_info != null) {
+                                if (relate_info != null && field.Get("regroup") == null) {
                                     string[] s = relate_info.Split('.');
                                     sw.WriteLine("\t\tforeach(var p1 in {0}.Instance.GetTable()) {{", meta.GetClassName());
                                     sw.WriteLine("\t\t\tvar v1 = p1.Value;");
