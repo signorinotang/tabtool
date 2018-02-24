@@ -12,6 +12,7 @@ namespace csharptest
         static void Main(string[] args)
         {
             if (TableConfig.Instance.LoadTableConfig()) {
+               var item =  td_test.Instance.GetTableItem(1);
                 
             }
         }

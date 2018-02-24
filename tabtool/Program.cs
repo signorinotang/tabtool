@@ -13,9 +13,9 @@ namespace tabtool
     {
         static void Main(string[] args) {
 
-            args = new string[] { "--out_client", "../../../csharptest/tabtool/config/", "--out_server", "../../../cpptest/tabtool/config/", "--out_cpp", "../../../cpptest/tabtool/", "--out_cs", "../../../csharptest/tabtool/", "--in_excel", "../../../test/doc/", "--in_tbs", "../../../test/doc/meta.tbs" };
+            //args = new string[] { "--out_client", "../../../csharptest/tabtool/config/", "--out_server", "../../../cpptest/tabtool/config/", "--out_cpp", "../../../cpptest/tabtool/", "--out_cs", "../../../csharptest/tabtool/", "--in_excel", "../../../test/doc/", "--in_tbs", "../../../test/doc/meta.tbs" };
 
-            string clientOutDir, serverOutDir, cppOutDir, csOutDir, excelDir, metafile;
+            string clientOutDir, serverOutDir, cppOutDir, ServerEnumDir, csOutDir, excelDir, metafile;
             CmdlineHelper cmder = new CmdlineHelper(args);
             if (cmder.Has("--out_client")) { clientOutDir = cmder.Get("--out_client"); } else {
                 return;
@@ -86,11 +86,14 @@ namespace tabtool
                 }
                 Console.WriteLine("<导出配置文件成功>");
                 //3 生成c++代码
-                if (cmder.Has("--out_cpp")) {
+                if (cmder.Has("--out_cpp")) {      
+                    ServerEnumDir = cmder.Get("--server_enum");
+                    if (!Directory.Exists(ServerEnumDir))
+                        Directory.CreateDirectory(ServerEnumDir);
+                    CodeGen.MakeCppEnumAndMask(excelDir, ServerEnumDir);
                     cppOutDir = cmder.Get("--out_cpp");
                     if (!Directory.Exists(cppOutDir))
                         Directory.CreateDirectory(cppOutDir);
-                    CodeGen.MakeCppEnumAndMask(excelDir, cppOutDir);
                     CodeGen.MakeCppFileTbs(tbs.GetMetaList(), cppOutDir);
                     CodeGen.MakeCppFile(serverTableMetaList, cppOutDir);
                     Console.WriteLine("<生成.cpp代码文件成功>");

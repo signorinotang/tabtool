@@ -64,6 +64,30 @@ using System.IO;
             return ret;
         }
     };
+    //**********************************
+    //freamwork < 4.0 has no DataTable *
+    //**********************************
+
+    public class DataColumn {
+
+    };
+
+    public class DataRow {
+
+    };
+
+    public class DataColumnCollection {
+       
+    };
+    public class DataRowCollection {
+
+    };
+
+    class DataTable1 {
+        DataColumnCollection Columns;
+        DataRowCollection Rows;
+    };
+
 
     class TableReader
     {

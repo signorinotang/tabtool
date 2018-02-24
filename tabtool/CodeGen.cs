@@ -24,7 +24,7 @@ namespace tabtool {
                     sw.WriteLine();
                     foreach (var field in meta.Fields) {
                         string relate_info = field.Get("relate");
-                        if(relate_info != null) {
+                        if(relate_info != null && field.Get("regroup") == null) {
                             string[] s = relate_info.Split('.');
                             if (s.Count() != 2) {
                                 throw new Exception(meta.TableName + " relate error!!! field name " + field.fieldName);
@@ -39,7 +39,7 @@ namespace tabtool {
                     }
                     foreach(var field in meta.Fields) {
                         string relate_info = field.Get("relate");
-                        if (relate_info != null) {
+                        if (relate_info != null && field.Get("regroup") == null) {
                             string[] s = relate_info.Split('.');
                             sw.WriteLine("  std::vector<const td_{0}_item*> __relate__td_{0}_items;", s[0].ToLower());
                         }        
@@ -242,6 +242,7 @@ namespace tabtool {
                     }
                     sw.WriteLine("}");
                     ////////////////////////
+                 
                 }
             }
         }

@@ -1,0 +1,1 @@
+"tools/tabtool/tabtool.exe" --out_client ../csharptest/tabtool/config/ --out_server ../cpptest/tabtool/config/ --out_cpp ../cpptest//tabtool/ --out_cs ../csharptest/tabtool/ --in_excel doc/ --in_tbs doc/meta.tbs
