@@ -501,7 +501,7 @@ namespace tabtool {
                     sw.WriteLine("namespace {0} {{", filename);
                         sw.WriteLine("\tpublic enum {0} {{", filename);
                         for (int i = 0; i < dt.Rows.Count; i++) {
-                            sw.WriteLine("\t\t{0} = {1}, //{2}", dt.Rows[i].ItemArray[1].ToString().ToLower(), dt.Rows[i].ItemArray[0].ToString().ToLower(), dt.Rows[i].ItemArray[2].ToString().ToLower());
+                            sw.WriteLine("\t\t{0} = {1}, //{2}", dt.Rows[i].ItemArray[1].ToString(), dt.Rows[i].ItemArray[0].ToString().ToLower(), dt.Rows[i].ItemArray[2].ToString().ToLower());
                         }
                         sw.WriteLine("\t};");
                         //sw.WriteLine("\tstring {0}_to_string({0} val) {{", filename);
