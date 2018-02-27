@@ -462,13 +462,13 @@ namespace tabtool {
                             sw.WriteLine("namespace {0} {{", filename);
                             sw.WriteLine("\tenum {0} {{", filename);
                             for (int i = 0; i < dt.Rows.Count; i++) {
-                                sw.WriteLine("\t\t{0} = {1}, //{2}", dt.Rows[i].ItemArray[1].ToString().ToLower(), dt.Rows[i].ItemArray[0].ToString().ToLower(), dt.Rows[i].ItemArray[2].ToString().ToLower());
+                                sw.WriteLine("\t\t{0} = {1}, //{2}", dt.Rows[i].ItemArray[1].ToString(), dt.Rows[i].ItemArray[0].ToString().ToLower(), dt.Rows[i].ItemArray[2].ToString().ToLower());
                             }
                             sw.WriteLine("\t};");
                             sw.WriteLine("\tinline char const* {0}_to_string(int val) {{", filename);
                             sw.WriteLine("\t\tswitch(val) {");
                             for (int i = 0; i < dt.Rows.Count; i++) {
-                                sw.WriteLine("\t\t\tcase {0}:{{ return \"{1}\";}}", dt.Rows[i].ItemArray[1].ToString().ToLower(), dt.Rows[i].ItemArray[1].ToString().ToLower());
+                                sw.WriteLine("\t\t\tcase {0}:{{ return \"{1}\";}}", dt.Rows[i].ItemArray[1].ToString(), dt.Rows[i].ItemArray[1].ToString().ToLower());
                             }
                             sw.WriteLine("\t\t\tdefault:{ return \"\";}");
                             sw.WriteLine("\t\t}");
@@ -499,7 +499,7 @@ namespace tabtool {
                     DataTable dt = helper.ImportExcelFile(filepath);
                     string filename = Path.GetFileNameWithoutExtension(filepath).ToLower();
                     sw.WriteLine("namespace {0} {{", filename);
-                        sw.WriteLine("\tenum {0} {{", filename);
+                        sw.WriteLine("\tpublic enum {0} {{", filename);
                         for (int i = 0; i < dt.Rows.Count; i++) {
                             sw.WriteLine("\t\t{0} = {1}, //{2}", dt.Rows[i].ItemArray[1].ToString().ToLower(), dt.Rows[i].ItemArray[0].ToString().ToLower(), dt.Rows[i].ItemArray[2].ToString().ToLower());
                         }
