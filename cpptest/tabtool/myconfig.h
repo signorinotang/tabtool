@@ -8,5 +8,12 @@
 const int MAX_TABLE_ROWS = 8000;	//表最大行数
 const int MAX_LINE_LEN = 8000;		//每行最大长度
 
-template<typename T> //获取表数据模板
-T const& GET_TABLE();
+//获取表数据模板
+template<typename ty> 
+inline ty const& GET_TABLE();
+
+template<typename ty, typename key_ty>
+inline typename ty::value_type const* GET_TABLE_DATA(key_ty const& key) {
+	auto const& m = GET_TABLE<ty>();
+	return m.GetTableItem(key);
+}

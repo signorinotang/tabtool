@@ -9,6 +9,7 @@
 #include "readtablefile.h"
 #include <vector>
 #include <assert.h>
+
 using namespace std;
 
 template<typename T, typename F>
@@ -30,6 +31,7 @@ template<typename T>
 class IConfigTable
 {
 public:
+	typedef T value_type;
 	IConfigTable() = default;
 	virtual ~IConfigTable() = default;
 	//加载表的接口

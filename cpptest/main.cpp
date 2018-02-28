@@ -28,8 +28,12 @@ int main(int argc, char **argv) {
 		if (item->attack_type | attack_type::land) {
 			int i = 0;
 		}
+	}
+	auto item2 = ::GET_TABLE_DATA<game_data::td_test>(1);
+	if (item2 == nullptr) {
 
 	}
+
 }
 
 
