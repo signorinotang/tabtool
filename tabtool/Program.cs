@@ -88,7 +88,7 @@ namespace tabtool
                 //3 生成c++代码
                 if (cmder.Has("--out_cpp")) {      
                     ServerEnumDir = cmder.Get("--server_enum");
-                    if (!Directory.Exists(ServerEnumDir))
+                    if (ServerEnumDir != null && !Directory.Exists(ServerEnumDir))
                         Directory.CreateDirectory(ServerEnumDir);
                     CodeGen.MakeCppEnumAndMask(excelDir, ServerEnumDir);
                     cppOutDir = cmder.Get("--out_cpp");

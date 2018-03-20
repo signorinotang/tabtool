@@ -57,6 +57,7 @@
     <Compile Include="tabtool\td_head.cs" />
     <Compile Include="tabtool\td_maps.cs" />
     <Compile Include="tabtool\td_test.cs" />
+    <Compile Include="tabtool\td_uidata.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

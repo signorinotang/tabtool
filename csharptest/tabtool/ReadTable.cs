@@ -39,7 +39,7 @@ using System.IO;
             return Extension.lexical_cast<T>(s);
         }
         public List<T> GetList<T>(string s) {
-            string[] vs = s.Split(',');
+            string[] vs = s.Split('|');
             List<T> ret = new List<T>();
             foreach (var ss in vs) {
                 T x = Extension.lexical_cast<T>(ss);
@@ -63,29 +63,6 @@ using System.IO;
             }
             return ret;
         }
-    };
-    //**********************************
-    //freamwork < 4.0 has no DataTable *
-    //**********************************
-
-    public class DataColumn {
-
-    };
-
-    public class DataRow {
-
-    };
-
-    public class DataColumnCollection {
-       
-    };
-    public class DataRowCollection {
-
-    };
-
-    class DataTable1 {
-        DataColumnCollection Columns;
-        DataRowCollection Rows;
     };
 
 

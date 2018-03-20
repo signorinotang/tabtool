@@ -383,7 +383,7 @@ namespace tabtool {
                                         sw.WriteLine("\t\t\titem.{0} = dr.GetObjectList<{1}>(row[\"{0}\"].ToString());", field.fieldName, field.realType);
                                     }
                                     else {
-                                        sw.WriteLine("\t\t\titem.{0} = dr.GetList<{1}>(reader.GetValue(i, \"{0}\"));", field.fieldName, field.FieldTypeToString(field.subType));
+                                        sw.WriteLine("\t\t\titem.{0} = dr.GetList<{1}>(\"{0}\");", field.fieldName, field.FieldTypeToString(field.subType));
                                     }
                                     break;
                                 case TableFieldType.MapField:

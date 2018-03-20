@@ -1,0 +1,3 @@
+﻿ui_id	prefab_name	load_relevance_prefabs	ui_layer_type	is_need_mask	resource_bar_type	is_open_resource_bar_touch	is_need_back_button
+1	UILogin.prefab	UILogin.prefab	0	1	0	0	0
+2	UI_test.prefab	UI_test.prefab	0	1	0	0	0
