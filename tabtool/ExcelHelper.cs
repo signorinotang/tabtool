@@ -143,14 +143,30 @@ namespace tabtool
             for (int i = 0; i < dt.Columns.Count; i++)
             {
                 if (!IsExportField(cmp, dt, i)) { continue; }
+                Match reg = null;
                 TableField field = new TableField();
                 field.fieldName = dt.Rows[0].ItemArray[i].ToString();
                 string[] conds = dt.Rows[1].ItemArray[i].ToString().Split('=');
+                int count = 0;
                 foreach (string s in conds) {
-                    field.Conditions.AddRange(s.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries));
+                    //field.Conditions.AddRange(s.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries));
+                    string[] remove_empty_s = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if(remove_empty_s.Length != 1) {
+                        throw new Exception("[PARSE_TAbLE_META_ERROR] table:" + filename + " condition:" + s + " remove_empty not 1");
+                    }
+                    if((reg = Regex.Match(remove_empty_s[0], @"(\w+)\(([A-Za-z0-9_.|]+)\)")).Success) {
+                        field.Conditions.Add(reg.Groups[1].Value);
+                        field.Conditions.Add(reg.Groups[2].Value);
+                    } else {
+                        field.Conditions.Add(remove_empty_s[0]);
+                    }
+                    if(count == 0) {
+                        field.realType = remove_empty_s[0];
+                    }
+                    ++count;
                 }
-                field.realType = field.Conditions[0];
-                Match reg = null;
+
+
                 //enum
                 if ((reg = Regex.Match(field.realType, @"^enum\((\w+)\)$")).Success) {
                     field.fieldType = TableFieldType.EnumField;

@@ -1,0 +1,3 @@
+﻿actor_id	talent_id	price	desc	cost_type
+1	1	1	火柴人1号	1
+2	2	1	火柴人2号	1

@@ -1,8 +1,9 @@
 //#include "tabtool/myconfig.h"
 #include <iostream>
-#include "tabtool/td_test.hpp"
+#include "tabtool/td_actor.hpp"
 #include "tabtool/resource_type.h"
 #include "tabtool/attack_type.h"
+#include "tabtool/td_actorlvup.hpp"
 
 
 namespace game_data {
@@ -17,23 +18,13 @@ int main(int argc, char **argv) {
 		std::cerr << "LOAD TABLE DATA ERROR!! SERVER NOT START!!!" << std::endl;
 		return -1;
 	}
-	auto item = ::GET_TABLE<game_data::td_test>().GetTableItem(2);
-	if (item != nullptr) {
-		if (item->cost_type == resource_type::rt_gold) {
-			int i = 0;
-		}
-		if (item->attack_type | attack_type::fly) {
-			int i = 0;
-		}
-		if (item->attack_type | attack_type::land) {
-			int i = 0;
-		}
-	}
-	auto item2 = ::GET_TABLE_DATA<game_data::td_test>(1);
-	if (item2 == nullptr) {
 
+	auto actor = ::GET_TABLE_DATA<game_data::td_regroup_actorlvupmap>(1);
+	if (actor == nullptr) {
+		int i = 0;
+		++i;
 	}
 
-}
+} 
 
 

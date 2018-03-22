@@ -67,9 +67,13 @@ public:
 	}
 
 	//直接获得map 返回值后置
-	auto RawMap()->auto const& { 
-		return m_Items; 
+	/*auto RawMap()->auto const& {
+		return m_Items;
+	}*/
+	const std::map<int, T>& RawMap() const{
+		return m_Items;
 	}
+
 	//得到条目数
 	int GetitemCount() const {
 		return m_Items.size();

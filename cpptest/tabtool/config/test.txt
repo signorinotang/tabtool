@@ -1,3 +1,0 @@
-﻿role_id	cost_type	attack_type	head_id	test1	test2	test3
-1	1	9	1	1,100	1,1|2,2	1,1,1.0
-2	3	15	1	1,100	2,2|3,4	1,1,1.0

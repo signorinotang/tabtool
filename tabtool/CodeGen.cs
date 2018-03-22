@@ -24,13 +24,22 @@ namespace tabtool {
                     sw.WriteLine();
                     foreach (var field in meta.Fields) {
                         string relate_info = field.Get("relate");
-                        if(relate_info != null && field.Get("regroup") == null) {
-                            string[] s = relate_info.Split('.');
-                            if (s.Count() != 2) {
-                                throw new Exception(meta.TableName + " relate error!!! field name " + field.fieldName);
+                         string regroup_info = field.Get("regroup");
+                        if(relate_info != null && regroup_info != null) {
+                                throw new Exception(meta.TableName + " relate error!!! field name " + field.fieldName + "relate and regroup can`t both !!!");
+                        }
+                        if(relate_info != null) {
+                            string[] relates = relate_info.Split('|');
+                            foreach (var relate in relates) {
+                                string[] s = relate.Split('.');
+                                if (s.Count() != 2) {
+                                    throw new Exception(meta.TableName + " relate error!!! field name " + field.fieldName);
+                                }
+                                sw.WriteLine("struct td_{0}_item;", s[0].ToLower());
                             }
                             meta.relate = true;
-                            sw.WriteLine("struct td_{0}_item;", s[0].ToLower());
+                        } else if(regroup_info != null) {
+                            meta.regroup = true;
                         }
                     }
                     sw.WriteLine("struct {0} {{", meta.GetItemName());
@@ -40,12 +49,14 @@ namespace tabtool {
                     foreach(var field in meta.Fields) {
                         string relate_info = field.Get("relate");
                         if (relate_info != null && field.Get("regroup") == null) {
-                            string[] s = relate_info.Split('.');
-                            sw.WriteLine("  std::vector<const td_{0}_item*> __relate__td_{0}_items;", s[0].ToLower());
-                        }        
+                            string[] relates = relate_info.Split('|');
+                                foreach (var relate in relates) {
+                                    string[] s = relate.Split('.');
+                                    sw.WriteLine("  std::vector<const td_{0}_item*> __relate__td_{0}_items;", s[0].ToLower());
+                                }
+                            }        
                     }
                     
-
                     sw.WriteLine("};");
                     sw.WriteLine();
                     sw.WriteLine("class {0} : public IConfigTable<{1}>{{", meta.GetClassName(), meta.GetItemName());
@@ -53,10 +64,8 @@ namespace tabtool {
                     sw.WriteLine("virtual bool Load() {");
                     sw.WriteLine("\tReadTableFile reader;");
                     sw.WriteLine("\treader.Initialize();");
-                    sw.WriteLine();
                     sw.WriteLine("\tif (!reader.Init(GetTableFile().c_str()))");
                     sw.WriteLine("\t\treturn false;");
-                    sw.WriteLine();
                     sw.WriteLine("\ttry {");
                     sw.WriteLine("\t\tDataReader dr;");
                     sw.WriteLine("\t\tint iRows = reader.GetRowCount();");
@@ -108,16 +117,36 @@ namespace tabtool {
                     sw.WriteLine("\t}");
                     sw.WriteLine("\treturn true;");
                     sw.WriteLine("}");
-                    sw.WriteLine();
                     sw.WriteLine("string GetTableFile() {");
                     sw.WriteLine("\tstring f = WORK_DIR;");
                     sw.WriteLine("\tf = f + \"{0}.txt\";", meta.TableName);
                     sw.WriteLine("\treturn f;");
                     sw.WriteLine("}");
-                    sw.WriteLine();
                     sw.WriteLine("};");
-                    sw.WriteLine();
                     sw.WriteLine("}");
+                    sw.WriteLine();
+                    if (meta.regroup) {
+                        sw.WriteLine("//regroup");
+                        foreach (var f in meta.Fields) {
+                            string regroup_info = f.Get("regroup");
+                            if (regroup_info == null) continue;
+                            sw.WriteLine("extern {1}::{0} the_{0};", meta.GetClassName(), space_name);
+                            sw.WriteLine("namespace {0} {{", space_name);
+                            sw.WriteLine("class {0} : public IConfigTable<std::vector<const {1}*>>{{", "td_regroup_" + regroup_info.ToLower(), meta.GetItemName());
+                            sw.WriteLine("public:");
+                            sw.WriteLine("virtual bool Load() {");
+                            sw.WriteLine("\tconst auto& base_table = the_{0}.RawMap();", meta.GetClassName());
+                            sw.WriteLine("\t\tfor(auto& it : base_table) {");
+                            sw.WriteLine("\t\t\tm_Items[it.second.{0}].push_back(&it.second);", f.fieldName);
+                            sw.WriteLine("\t\t}");
+                            sw.WriteLine("\t\treturn true;");
+                            sw.WriteLine("\t}");
+                            sw.WriteLine("};");
+                            sw.WriteLine("}");
+                        }
+                    }
+                    sw.WriteLine();
+                    
                     }
                 }
             }
@@ -136,6 +165,16 @@ namespace tabtool {
                         sw.WriteLine("template<> ::{0}::{1} const& GET_TABLE<::{0}::{1}>() {{", space_name, meta.GetClassName());
                         sw.WriteLine("\treturn the_{0};", meta.GetClassName());
                         sw.WriteLine("}");
+                        if(meta.regroup) {
+                            foreach (var f in meta.Fields) {
+                                string regroup_info = f.Get("regroup");
+                                if (regroup_info == null) continue;
+                                sw.WriteLine("{0}::{1} the_{1};", space_name, "td_regroup_" + regroup_info.ToLower());
+                                sw.WriteLine("template<> ::{0}::{1} const& GET_TABLE<::{0}::{1}>() {{", space_name, "td_regroup_" + regroup_info.ToLower());
+                                sw.WriteLine("\treturn the_{0};", "td_regroup_" + regroup_info.ToLower());
+                                sw.WriteLine("}");
+                            }
+                        }
                     }
                     sw.WriteLine();
                     sw.WriteLine("namespace {0} {{", space_name);
@@ -145,6 +184,13 @@ namespace tabtool {
                         //sw.WriteLine("try {{ if(the_{0}.Load() == false) throw std::logic_error(\"{0} load failed !!!\"); }} catch (std::exception& e) {{ std::cerr << e.what(); throw e;}}", meta.GetClassName());
                         //非序列化版本
                         sw.WriteLine("\tif(!the_{0}.Load()) {{ std::cerr << \"load {0} failed !!!\" << std::endl; return false; }}", meta.GetClassName());
+                        if(meta.regroup) {
+                            foreach (var f in meta.Fields) {
+                                string regroup_info = f.Get("regroup");
+                                if (regroup_info == null) continue;
+                                sw.WriteLine("\tif(!the_td_regroup_{0}.Load()) {{ std::cerr << \"load {0} failed !!!\" << std::endl; return false; }}", regroup_info.ToLower());
+                            }
+                        }
                     }
                     //relate code
                     sw.WriteLine("\t//relate code");
@@ -154,18 +200,21 @@ namespace tabtool {
                             foreach (var field in meta.Fields) {
                                 string relate_info = field.Get("relate");
                                 if (relate_info != null) {
-                                    string[] s = relate_info.Split('.');
-                                    sw.WriteLine("\t\tfor(auto p1 = the_{0}.RawMap().begin(); p1 != the_{0}.RawMap().end(); ++p1) {{", meta.GetClassName());
-                                    sw.WriteLine("\t\t\tauto& v1 = ({0}&)p1->second;", meta.GetItemName());
-                                    sw.WriteLine("\t\t\tauto const& k1 = v1.{0};", field.fieldName);                                  
-                                    sw.WriteLine("\t\t\tfor(auto p2 = the_td_{0}.RawMap().begin(); p2 != the_td_{0}.RawMap().end(); ++p2) {{", s[0].ToLower());
-                                    sw.WriteLine("\t\t\t\tauto const& v2 = p2->second;");
-                                    sw.WriteLine("\t\t\t\tauto const& k2 = v2.{0};", s[1].ToLower());
-                                    sw.WriteLine("\t\t\t\tif(k1 == k2) {");
-                                    sw.WriteLine("\t\t\t\t\tv1.__relate__td_{0}_items.push_back(&v2);", s[0].ToLower());
-                                    sw.WriteLine("\t\t\t\t}");
-                                    sw.WriteLine("\t\t\t}");
-                                    sw.WriteLine("\t\t}");                                   
+                                    string[] realtes = relate_info.Split('|');
+                                    foreach (var realte in realtes) {
+                                        string[] s = realte.Split('.');
+                                        sw.WriteLine("\t\tfor(auto p1 = the_{0}.RawMap().begin(); p1 != the_{0}.RawMap().end(); ++p1) {{", meta.GetClassName());
+                                        sw.WriteLine("\t\t\tauto& v1 = ({0}&)p1->second;", meta.GetItemName());
+                                        sw.WriteLine("\t\t\tauto const& k1 = v1.{0};", field.fieldName);
+                                        sw.WriteLine("\t\t\tfor(auto p2 = the_td_{0}.RawMap().begin(); p2 != the_td_{0}.RawMap().end(); ++p2) {{", s[0].ToLower());
+                                        sw.WriteLine("\t\t\t\tauto const& v2 = p2->second;");
+                                        sw.WriteLine("\t\t\t\tauto const& k2 = v2.{0};", s[1].ToLower());
+                                        sw.WriteLine("\t\t\t\tif(k1 == k2) {");
+                                        sw.WriteLine("\t\t\t\t\tv1.__relate__td_{0}_items.push_back(&v2);", s[0].ToLower());
+                                        sw.WriteLine("\t\t\t\t}");
+                                        sw.WriteLine("\t\t\t}");
+                                        sw.WriteLine("\t\t}");
+                                    }
                                 }
                             }
                             sw.WriteLine("\t}");
@@ -304,19 +353,9 @@ namespace tabtool {
             }
 
         }
-        public static void MakeCsharpRegroupFile(TableMeta meta, string codepath) {
-            foreach (var field in meta.Fields) {
-                string relate_info = field.Get("regroup");
-                if(relate_info != null) {
-                   
-
-                }
-            }
-        }
         public static void MakeCsharpFile(List<TableMeta> metalist, string codepath)
         {
             foreach (var meta in metalist) {
-                MakeCsharpRegroupFile(meta, codepath);
                 string csfile = codepath + meta.GetClassName() + ".cs";
                 using (FileStream fs = new FileStream(csfile, FileMode.Create, FileAccess.Write)) {
                     using (StreamWriter sw = new StreamWriter(fs, Encoding.UTF8)) {
@@ -334,13 +373,23 @@ namespace tabtool {
                         }
                         foreach (var field in meta.Fields) {
                             string relate_info = field.Get("relate");
-                            if (relate_info != null && field.Get("regroup") == null) {
-                                string[] s = relate_info.Split('.');
-                                if (s.Count() != 2) {
-                                    throw new Exception(meta.TableName + " relate error!!! field name " + field.fieldName);
+                            string regroup_info = field.Get("regroup");
+                            if (relate_info != null && regroup_info != null) {
+                                throw new Exception(meta.TableName + " relate error!!! field name " + field.fieldName + "relate and regroup can`t both !!!");
+                            }
+                            if (relate_info != null) {
+                                string[] relates = relate_info.Split('|');
+                                foreach (var relate in relates) {
+                                    string[] s = relate.Split('.');
+                                    if (s.Count() != 2) {
+                                        throw new Exception(meta.TableName + " relate error!!! field name " + field.fieldName);
+                                    }
+                                    sw.WriteLine("\tpublic List<td_{0}_item> __relate__td_{0}_items = new List<td_{0}_item>();", s[0].ToLower());
                                 }
                                 meta.relate = true;
-                                sw.WriteLine("\tpublic List<td_{0}_item> __relate__td_{0}_items = new List<td_{0}_item>();", s[0].ToLower());
+                            } else if( regroup_info != null)
+                            {
+                                meta.regroup = true;
                             }
                         }
                         sw.WriteLine("};");
@@ -396,6 +445,78 @@ namespace tabtool {
                         sw.WriteLine("\t\treturn true;");
                         sw.WriteLine("\t}");
                         sw.WriteLine("}");
+
+                        if (meta.regroup) {
+                            foreach (var f in meta.Fields) {
+                                string regroup_info = f.Get("regroup");
+                                if (regroup_info == null) continue;
+
+                                sw.WriteLine("public class {0} : TableManager<List<{1}>, {0}> {{", "td_regroup_" + regroup_info.ToLower(), meta.GetItemName());
+                                sw.WriteLine("\tpublic override bool Load() {");
+                                #region 另一套方案
+                                //sw.WriteLine("\t\tTableReader tr = new TableReader();");
+                                //sw.WriteLine("\t\tDataReader dr = new DataReader();");
+                                //sw.WriteLine("\t\tDataTable dt = tr.ReadFile(MyConfig.WorkDir+\"{0}.txt\");", meta.TableName);
+                                //sw.WriteLine("\t\tforeach(DataRow row in dt.Rows) {");
+                                //sw.WriteLine("\t\t\tvar item = new {0}();", meta.GetItemName());
+
+                                //foreach (var field in meta.Fields)
+                                //{
+                                //    switch (field.fieldType)
+                                //    {
+                                //        case TableFieldType.EnumField:
+                                //        case TableFieldType.MaskField:
+                                //        case TableFieldType.IntField:
+                                //            sw.WriteLine("\t\t\titem.{0} = dr.GetValue<int>(row[\"{0}\"].ToString());", field.fieldName);
+                                //            break;
+                                //        case TableFieldType.Int64Field:
+                                //            sw.WriteLine("\t\t\titem.{0} = dr.GetValue<long>(row[\"{0}\"].ToString());", field.fieldName);
+                                //            break;
+                                //        case TableFieldType.FloatField:
+                                //            sw.WriteLine("\t\t\titem.{0} = dr.GetValue<float>(row[\"{0}\"].ToString());", field.fieldName);
+                                //            break;
+                                //        case TableFieldType.DoubleField:
+                                //            sw.WriteLine("\t\t\titem.{0} = dr.GetValue<double>(row[\"{0}\"].ToString());", field.fieldName);
+                                //            break;
+                                //        case TableFieldType.StringField:
+                                //            sw.WriteLine("\t\t\titem.{0} = (row[\"{0}\"].ToString());", field.fieldName);
+                                //            break;
+                                //        case TableFieldType.TupleField:
+                                //            //TODO:
+                                //            break;
+                                //        case TableFieldType.StructField:
+                                //            sw.WriteLine("\t\t\titem.{0} = dr.GetObject<{1}>(row[\"{0}\"].ToString());", field.fieldName, field.GetCsharpTypeName());
+                                //            break;
+                                //        case TableFieldType.ListField:
+                                //            if (field.subType == TableFieldType.StructField)
+                                //            {
+                                //                sw.WriteLine("\t\t\titem.{0} = dr.GetObjectList<{1}>(row[\"{0}\"].ToString());", field.fieldName, field.realType);
+                                //            }
+                                //            else
+                                //            {
+                                //                sw.WriteLine("\t\t\titem.{0} = dr.GetList<{1}>(\"{0}\");", field.fieldName, field.FieldTypeToString(field.subType));
+                                //            }
+                                //            break;
+                                //        case TableFieldType.MapField:
+                                //            break;
+
+                                //    }
+                                //}
+                                #endregion
+                                sw.WriteLine("\t\tvar base_table = {0}.Instance.GetTable();", meta.GetClassName());
+                                sw.WriteLine("\t\tforeach(var item in base_table) {");
+                                sw.WriteLine("\t\t\tif(!m_Items.ContainsKey(item.Value.{0})) {{", f.fieldName);
+                                sw.WriteLine("\t\t\t\tList<{0}> list = new List<{0}>();", meta.GetItemName());
+                                sw.WriteLine("\t\t\t\tm_Items.Add(item.Value.{0}, list);", f.fieldName);
+                                sw.WriteLine("\t\t\t}");
+                                sw.WriteLine("\t\t\tm_Items[item.Value.{0}].Add(item.Value);", f.fieldName);//必须有一个id
+                                sw.WriteLine("\t\t}");
+                                sw.WriteLine("\t\treturn true;");
+                                sw.WriteLine("\t}");
+                                sw.WriteLine("}");
+                            }
+                        }
+
                         sw.WriteLine("}");
                         sw.WriteLine();
                     }
@@ -413,6 +534,15 @@ namespace tabtool {
                     sw.WriteLine("\tpublic bool LoadTableConfig() {");
                     foreach (var meta in metalist) {
                         sw.WriteLine("\t\tif (!{0}.Instance.Load()) return false;", meta.GetClassName());
+                        if(meta.regroup)
+                        {
+                            foreach (var f in meta.Fields)
+                            {
+                                string regroup_info = f.Get("regroup");
+                                if (regroup_info == null) continue;
+                                sw.WriteLine("\t\tif (!td_regroup_{0}.Instance.Load()) return false;", regroup_info.ToLower());
+                            }
+                        }
                     }
                     sw.WriteLine("\t//relate code");
                     foreach (var meta in metalist) {
@@ -420,18 +550,21 @@ namespace tabtool {
                             foreach (var field in meta.Fields) {
                                 string relate_info = field.Get("relate");
                                 if (relate_info != null && field.Get("regroup") == null) {
-                                    string[] s = relate_info.Split('.');
-                                    sw.WriteLine("\t\tforeach(var p1 in {0}.Instance.GetTable()) {{", meta.GetClassName());
-                                    sw.WriteLine("\t\t\tvar v1 = p1.Value;");
-                                    sw.WriteLine("\t\t\tvar k1 = v1.{0};", field.fieldName);
-                                    sw.WriteLine("\t\t\tforeach(var p2 in td_{0}.Instance.GetTable()) {{", s[0].ToLower());
-                                    sw.WriteLine("\t\t\t\tvar v2 = p2.Value;");
-                                    sw.WriteLine("\t\t\t\tvar k2 = v2.{0};", s[1].ToLower());
-                                    sw.WriteLine("\t\t\t\tif(k1 == k2) {");
-                                    sw.WriteLine("\t\t\t\t\tv1.__relate__td_{0}_items.Add(v2);", s[0].ToLower());
-                                    sw.WriteLine("\t\t\t\t}");
-                                    sw.WriteLine("\t\t\t}");
-                                    sw.WriteLine("\t\t}");
+                                    string[] relates = relate_info.Split('|');
+                                    foreach (var relate in relates) {
+                                        string[] s = relate.Split('.');
+                                        sw.WriteLine("\t\tforeach(var p1 in {0}.Instance.GetTable()) {{", meta.GetClassName());
+                                        sw.WriteLine("\t\t\tvar v1 = p1.Value;");
+                                        sw.WriteLine("\t\t\tvar k1 = v1.{0};", field.fieldName);
+                                        sw.WriteLine("\t\t\tforeach(var p2 in td_{0}.Instance.GetTable()) {{", s[0].ToLower());
+                                        sw.WriteLine("\t\t\t\tvar v2 = p2.Value;");
+                                        sw.WriteLine("\t\t\t\tvar k2 = v2.{0};", s[1].ToLower());
+                                        sw.WriteLine("\t\t\t\tif(k1 == k2) {");
+                                        sw.WriteLine("\t\t\t\t\tv1.__relate__td_{0}_items.Add(v2);", s[0].ToLower());
+                                        sw.WriteLine("\t\t\t\t}");
+                                        sw.WriteLine("\t\t\t}");
+                                        sw.WriteLine("\t\t}");
+                                    }
                                 }
                             }
                         }

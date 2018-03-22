@@ -74,6 +74,9 @@ namespace tabtool {
                     check_dic.Clear();
                 }
             }
+            //索引校验（主键不可重复）
+
+
             //条件检验
             foreach (var meta in metalist) {
                 for (int i = 0; i < meta.Fields.Count(); ++i) {
@@ -220,42 +223,45 @@ namespace tabtool {
                         if (field.fieldType == TableFieldType.ListField) {
                             throw new Exception("[RELATE CHECK ERROR] Table:" + meta.TableName + " Field:" + field.fieldName + " List Can`t Relate!!!");
                         }
-                            string[] c = check_info.Split('.');
-                        if (c.Count() != 2) {
-                            throw new Exception("[RELATE CHECK ERROR] Table:" + meta.TableName + " Field:" + field.fieldName + " ParamNum Not Two!!!");
-                        }
-                        //找到校验dt
-                        DataTable check_dt = null;
-                        int check_col = -1;
-                        foreach (var me in metalist) {
-                            if (me.TableName.ToLower() == c[0].ToLower()) {
-                                check_dt = me.dt;
-                                for (int j = 0; j < me.dt.Columns.Count; ++j) {
-                                    if (me.dt.Rows[0].ItemArray[j].ToString() == c[1].ToLower()) {
-                                        check_col = j;
-                                        break;
-                                    }
-                                }
-                                break;
+                        string[] check_infos = check_info.Split('|');
+                        foreach (var check in check_infos) {
+                            string[] c = check.Split('.');
+                            if (c.Count() != 2) {
+                                throw new Exception("[RELATE CHECK ERROR] Table:" + meta.TableName + " Field:" + field.fieldName + " ParamNum Not Two!!!");
                             }
-                        }
-                        if (check_dt == null) {
-                            throw new Exception("[RELATE CHECK ERROR] Table:" + meta.TableName + " Field:" + field.fieldName + " Not Find Table " + c[0]);
-                        }
-                        if (check_col == -1) {
-                            throw new Exception("[RELATE CHECK ERROR] Table:" + meta.TableName + " Field:" + field.fieldName + " Not Find Field " + c[1]);
-                        }
-                        //遍历dt这一列                    
-                        for (int k = 3; k < meta.dt.Rows.Count; ++k) {
-                            bool find_value = false;
-                            for (int m = 3; m < check_dt.Rows.Count; ++m) {
-                                if (meta.dt.Rows[k].ItemArray[i].ToString() == check_dt.Rows[m].ItemArray[check_col].ToString()) {
-                                    find_value = true;
+                            //找到校验dt
+                            DataTable check_dt = null;
+                            int check_col = -1;
+                            foreach (var me in metalist) {
+                                if (me.TableName.ToLower() == c[0].ToLower()) {
+                                    check_dt = me.dt;
+                                    for (int j = 0; j < me.dt.Columns.Count; ++j) {
+                                        if (me.dt.Rows[0].ItemArray[j].ToString() == c[1].ToLower()) {
+                                            check_col = j;
+                                            break;
+                                        }
+                                    }
                                     break;
                                 }
                             }
-                            if (!find_value) {
-                                throw new Exception("[RELATE CHECK ERROR] Table:" + meta.TableName + " Field:" + field.fieldName + " Not Find Value " + meta.dt.Rows[k].ItemArray[i] + " Row:" + (k + 1).ToString() + " Col:" + (i + 1).ToString());
+                            if (check_dt == null) {
+                                throw new Exception("[RELATE CHECK ERROR] Table:" + meta.TableName + " Field:" + field.fieldName + " Not Find Table " + c[0]);
+                            }
+                            if (check_col == -1) {
+                                throw new Exception("[RELATE CHECK ERROR] Table:" + meta.TableName + " Field:" + field.fieldName + " Not Find Field " + c[1]);
+                            }
+                            //遍历dt这一列                    
+                            for (int k = 3; k < meta.dt.Rows.Count; ++k) {
+                                bool find_value = false;
+                                for (int m = 3; m < check_dt.Rows.Count; ++m) {
+                                    if (meta.dt.Rows[k].ItemArray[i].ToString() == check_dt.Rows[m].ItemArray[check_col].ToString()) {
+                                        find_value = true;
+                                        break;
+                                    }
+                                }
+                                if (!find_value) {
+                                    throw new Exception("[RELATE CHECK ERROR] Table:" + meta.TableName + " Field:" + field.fieldName + " Not Find Value " + meta.dt.Rows[k].ItemArray[i] + " Row:" + (k + 1).ToString() + " Col:" + (i + 1).ToString());
+                                }
                             }
                         }
                     }

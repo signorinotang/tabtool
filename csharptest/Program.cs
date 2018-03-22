@@ -12,8 +12,8 @@ namespace csharptest
         static void Main(string[] args)
         {
             if (TableConfig.Instance.LoadTableConfig()) {
-               var item =  td_test.Instance.GetTableItem(1);
-                
+               var item =  td_actor.Instance.GetTableItem(1);
+               var atcor = td_regroup_actorlvupmap.Instance.GetTableItem(1);
             }
         }
     }

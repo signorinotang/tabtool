@@ -121,6 +121,7 @@ namespace tabtool {
         public DataTable dt;//表数据
         public List<TableField> Fields = new List<TableField>();
         public bool relate = false;//表中是否含有关联
+        public bool regroup = false;//表中是否含有聚合
         public string GetClassName()
         {
             return "td_" + TableName.ToLower();

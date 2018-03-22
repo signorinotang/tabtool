@@ -52,10 +52,13 @@
     <ClInclude Include="tabtool\tablestruct.h">
       <Filter>tabletool</Filter>
     </ClInclude>
-    <ClInclude Include="tabtool\td_head.hpp">
+    <ClInclude Include="tabtool\td_actor.hpp">
       <Filter>tabletool</Filter>
     </ClInclude>
-    <ClInclude Include="tabtool\td_test.hpp">
+    <ClInclude Include="tabtool\td_actorlvup.hpp">
+      <Filter>tabletool</Filter>
+    </ClInclude>
+    <ClInclude Include="tabtool\td_actortalent.hpp">
       <Filter>tabletool</Filter>
     </ClInclude>
   </ItemGroup>

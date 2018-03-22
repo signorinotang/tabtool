@@ -59,10 +59,10 @@ tbsIdCount {
 - 字段类型检查 是否未定义的字段类型
 - 填写枚举检查  检查填写枚举是否存在
 - 填写掩码检查  检查填写掩码是否超出范围
-- 存在校验 检查所填数据是否数据x表x字段中  eg:  =  exist table_name.field_name
-- 长度校验 检查所填数据的长度 eg: = length 5
-- 关联设置 关联表格数据 避免多次查找 eg:  = relate  tablename.field_name
-- 聚合设置 表进行聚合 （非id字段作为主键 进行聚合 变为  map<int, list<xxx>>） 自行理解 eg: = regroup name （支持中）
+- 存在校验 检查所填数据是否数据x表x字段中  eg:  =  exist(table_name.filed_name)
+- 长度校验 检查所填数据的长度 eg: = length(5)
+- 关联设置 关联表格数据 避免多次查找 eg:  = relate(table_name.filed_name|table_name.filed_name) 支持同一字段关联多张表 |分割
+- 聚合设置 表进行聚合 （非id字段作为主键 进行聚合 变为  map<int, list<table_item*>>） 自行理解 eg: = regroup(name) 
 - 值校验  大小 范围 等等 （暂式不支持 还没想好） eg:  = value < 100 
 
 ## 导表工具使用
